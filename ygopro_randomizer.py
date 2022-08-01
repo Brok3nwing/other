@@ -2,18 +2,9 @@ import requests
 import random
 
 
-banned_cards_endpoint = "https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg&sort=name"
-
 endpoint = "https://db.ygoprodeck.com/api/v7/cardinfo.php?sort=name"
-
-endp = "https://db.ygoprodeck.com/api/v7/cardinfo.php?sort=name&id="
-
 response = requests.get(f"{endpoint}")
 result = response.json()
-
-response2 = requests.get(f"{endp}")
-result2 = response.json()
-
 
 
 all_monster_cards = []
@@ -48,27 +39,58 @@ def random_traps():
 def random_spells():
     for b in result["data"]:
         if b["type"] == "Spell Card":
-                all_spell_cards.append(b["id"])
+            all_spell_cards.append(b["id"])
     return all_spell_cards
 
+for count in range(0, 10):
+    with open(f"C:/Yu-Gi-Oh! The Dawn of a New Era/YGOPRO/deck/random{count}.ydk", "w") as f:
+        total_price = []
+        f.write("#created by ...\n")
+        f.write("#main\n")
+        for d in range(0, 20):
+            random_card = random.choice(random_main_deck())
+            random_main_deck().remove(random_card)
+            id_endpoint = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="+str(random_card)
 
-with open("C:/Yu-Gi-Oh! The Dawn of a New Era/YGOPRO/deck/random.ydk", "w") as f:
-    f.write("#created by ...\n")
-    f.write("#main\n")
-    for d in range(0, 20):
-        f.write(str(random.choice(random_main_deck())))
-        f.write("\n")
+            id_response = requests.get(f"{id_endpoint}")
+            id_result = id_response.json()
+            b = id_result["data"]
+            price = float((b[0]["card_prices"][0]["tcgplayer_price"]))
+            total_price.append(price)
 
-    for d in range(0, 10):
-        f.write(str(random.choice(random_spells())))
-        f.write("\n")
 
-    for d in range(0, 10):
-        f.write(str(random.choice(random_traps())))
-        f.write("\n")
+            f.write(str(random_card))
+            f.write("\n")
 
-    f.write("#extra\n")
-    f.write("!side")
+        for d in range(0, 10):
+            random_card = random.choice(random_spells())
+            random_spells().remove(random_card)
+            id_endpoint = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="+str(random_card)
+
+            id_response = requests.get(f"{id_endpoint}")
+            id_result = id_response.json()
+            b = id_result["data"]
+            price = float((b[0]["card_prices"][0]["tcgplayer_price"]))
+            total_price.append(price)
+            f.write(str(random_card))
+            f.write("\n")
+
+        for d in range(0, 10):
+            random_card = random.choice(random_traps())
+            random_traps().remove(random_card)
+            id_endpoint = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="+str(random_card)
+
+            id_response = requests.get(f"{id_endpoint}")
+            id_result = id_response.json()
+            b = id_result["data"]
+            price = float((b[0]["card_prices"][0]["tcgplayer_price"]))
+            total_price.append(price)
+            f.write(str(random_card))
+            f.write("\n")
+
+        f.write("#extra\n")
+        f.write("!side")
+        print(f"Random Deck Number {count} created with value {sum(total_price)}$")
 
 
 
